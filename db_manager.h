@@ -16,13 +16,15 @@ class DB_Manager{
 public:
 	DB_Manager();
 	~DB_Manager();
-	int Set(std::string key, std::string &value);
-	int Get(std::string key, std::string *value);
+	int Set(std::string &key, std::string &value);
+	int Get(std::string &key, std::string *value);
 	int Remove(std::string key);
 	int Flush();
 private:
 	sqlite3 *db;
+	int RewriteEntry(std::string &key, std::string &value);
 	int InitDB();
+	void OutputError();
 };
 
 #endif /* DB_MANAGER_H_ */

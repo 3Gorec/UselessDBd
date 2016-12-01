@@ -26,55 +26,70 @@ DB_Manager::~DB_Manager(){
 	sqlite3_close(db);
 }
 
-int DB_Manager::Set(std::string key, std::string &value){
+int DB_Manager::Set(std::string &key, std::string &value){
 	int ret=0;
-	std::string set_query;
-	char *error_msg;
+	char *sql_query;
+	sqlite3_stmt *stmt;
+
 	ret=Get(key,0);
-	if(ret==-1){	//Добавить новую
-		set_query.assign("INSERT INTO "ULTABLE_NAME" VALUES ('");
-		set_query.append(key);
-		set_query.append("','");
-		set_query.append(value);
-		set_query.append("');");
+	if(ret==0){	//Заменить запись
+		ret=RewriteEntry(key,value);
+		return ret;
 	}
-	else if(ret==0){	//Заменить запись
-		set_query.assign("UPDATE "ULTABLE_NAME" SET value='");
-		set_query.append(value);
-		set_query.append("' WHERE key='");
-		set_query.append(key);
-		set_query.append("';");
+	else if(ret==-1){	//Добавить новую
+		sql_query=(char *)"INSERT INTO "ULTABLE_NAME" VALUES (?1,?2);";
 	}
-	ret=sqlite3_exec(db,set_query.data(),NULL,NULL,&error_msg);
-	if(ret!=0){
-		//todo process error
+	ret=sqlite3_prepare_v2(db, sql_query, -1, &stmt, 0);
+	if(ret==SQLITE_OK){
+			sqlite3_bind_text(stmt,1,key.data(),-1,0);
+			sqlite3_bind_text(stmt,2,value.data(),-1,0);
+	}
+	else{
+		OutputError();
+	}
+
+	if(ret==SQLITE_OK){
+		ret=sqlite3_step(stmt);
+		if(ret==SQLITE_DONE){
+			ret=0;
+		}
+		else{
+			OutputError();
+		}
+		sqlite3_finalize(stmt);
 	}
 	return ret;
 }
 
-int DB_Manager::Get(std::string key, std::string *value){
+int DB_Manager::Get(std::string &key, std::string *value){
 	int ret=0;
-	char *error_msg;
-	std::string get_query="SELECT * FROM "ULTABLE_NAME" WHERE key='";
-	get_query.append(key);
-	get_query.append("';");
-	char **results = NULL;
-	int rows, columns;
-	ret=sqlite3_get_table(db,get_query.data(),&results, &rows, &columns, &error_msg);
-	if(ret==0){
-		if(rows==1){	// ровно одна запись с уникальным ключом
-			if(value!=NULL){
-				value->assign(results[((rows+1)*columns)-1]);	//Получаем значение value
-			}
-		}
-		else{
-			ret=-1;
-		}
-		sqlite3_free_table(results);
+	sqlite3_stmt *stmt;
+	char * sql_query=(char *)"SELECT * FROM "ULTABLE_NAME" WHERE key=?1;";
+	ret=sqlite3_prepare_v2(db, sql_query, -1, &stmt, 0);
+	if(ret==SQLITE_OK){
+		sqlite3_bind_text(stmt,1,key.data(),-1,0);
 	}
 	else{
-		//todo process error
+		OutputError();
 	}
+
+	if(ret==SQLITE_OK){
+		ret=sqlite3_step(stmt);
+		if(ret==SQLITE_ROW){//Есть строка стаким ключом
+			if(value!=NULL){
+				value->assign((const char *)sqlite3_column_text(stmt, 1));	//Получаем значение value
+			}
+			ret=0;
+		}
+		else if(ret==SQLITE_DONE){	//нет записи с таким ключом
+			ret=-1;
+		}
+		else{
+			OutputError();
+		}
+		sqlite3_finalize(stmt);
+	}
+
 	return ret;
 }
 
@@ -89,33 +104,66 @@ int DB_Manager::Flush(){
 	char *error_msg;
 	ret=sqlite3_exec(db,"DELETE FROM "ULTABLE_NAME";",NULL,NULL,&error_msg);
 	if(ret){
-		//printf("Create table "ULTABLE_NAME" error:\n %s\n",error_msg);	todo process error
-		//sqlite3_free(error_msg);
-		//sqlite3_close(db);
-		//return EXIT_FAILURE;
+		OutputError();
+	}
+	return ret;
+}
+
+int DB_Manager::RewriteEntry(std::string &key, std::string &value){
+	int ret=0;
+	char *sql_query;
+	sqlite3_stmt *stmt;
+	sql_query=(char *)"UPDATE "ULTABLE_NAME" SET value=?1 WHERE key=?2;";
+	ret=sqlite3_prepare_v2(db, sql_query, -1, &stmt, 0);
+	if(ret==SQLITE_OK){
+		sqlite3_bind_text(stmt,1,value.data(),-1,0);
+		sqlite3_bind_text(stmt,2,key.data(),-1,0);
+	}
+	else{
+		OutputError();
+	}
+
+	if(ret==SQLITE_OK){
+		ret=sqlite3_step(stmt);
+		if(ret==SQLITE_DONE){
+			ret=0;
+		}
+		else{
+			OutputError();
+		}
+		sqlite3_finalize(stmt);
 	}
 	return ret;
 }
 
 int DB_Manager::InitDB(){
 	int ret=0;
-	char *error_msg;
-	ret=sqlite3_exec(db,"create table if not exists "ULTABLE_NAME" ( " \
-	"key varchar("TOSTR(MAX_KEY_STR_LEN)") NOT NULL," \
-	"value varchar("TOSTR(MAX_VALUE_STR_LEN)") NOT NULL," \
-	"PRIMARY KEY (key)" \
-	");",NULL,NULL,&error_msg);
-	if(ret){
-		//printf("Create table "ULTABLE_NAME" error:\n %s\n",error_msg);	todo process error
-		//sqlite3_free(error_msg);
-		//sqlite3_close(db);
-		//return EXIT_FAILURE;
-	}
+	sqlite3_stmt *stmt;
+	const char *sql_query="create table if not exists "ULTABLE_NAME" (" \
+						"key varchar("TOSTR(MAX_KEY_STR_LEN)") NOT NULL," \
+						"value varchar("TOSTR(MAX_VALUE_STR_LEN)") NOT NULL," \
+						"PRIMARY KEY (key)" \
+						");";
 
-	return 0;
+	ret=sqlite3_prepare_v2(db, sql_query, -1, &stmt, 0);
+	if(ret!=SQLITE_OK){
+		OutputError();
+	}
+	if(ret==SQLITE_OK){
+		ret=sqlite3_step(stmt);
+			if(ret!=SQLITE_DONE){
+				OutputError();
+			}
+			sqlite3_finalize(stmt);
+	}
+	return ret;
 }
 
-
+void DB_Manager::OutputError(){
+	char *error_msg=(char *)sqlite3_errmsg(db);
+	printf("Error %s\n",error_msg);
+	sqlite3_free(error_msg);
+}
 
 
 
