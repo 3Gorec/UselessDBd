@@ -1,6 +1,6 @@
 BUILD_DIR=build/
 EXT_INCLUDES=
-DIRS=./
+DIRS=./ useless_nl_core
 SRC_DIR=$(foreach d, $(DIRS), $d/)
 CPP_SOURCES=$(foreach dir,$(SRC_DIR),$(wildcard $(dir)*.cpp))
 CPP_SOURCE_FILES=$(foreach dir,$(SRC_DIR),$(patsubst $(dir)%,%,$(wildcard $(dir)*.cpp)))
