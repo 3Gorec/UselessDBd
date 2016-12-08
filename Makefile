@@ -16,7 +16,7 @@ all: debug
 
 release: $(TARGET)
 
-debug: CXXFLAGS+=-g3
+debug: CXXFLAGS+=-g3 -std=c++11
 debug: $(TARGET)	
 
 $(TARGET): $(CPP_OBJECTS) prepare	
