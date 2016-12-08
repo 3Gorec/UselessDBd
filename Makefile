@@ -1,10 +1,11 @@
 BUILD_DIR=build/
+EXT_INCLUDES=
 DIRS=./
 SRC_DIR=$(foreach d, $(DIRS), $d/)
 CPP_SOURCES=$(foreach dir,$(SRC_DIR),$(wildcard $(dir)*.cpp))
 CPP_SOURCE_FILES=$(foreach dir,$(SRC_DIR),$(patsubst $(dir)%,%,$(wildcard $(dir)*.cpp)))
 CPP_OBJECTS=$(CPP_SOURCE_FILES:.cpp=.o)
-INCLUDES=$(foreach d, $(DIRS), -I$d)
+INCLUDES=$(foreach d, $(DIRS), -I$d) $(foreach d, $(EXT_INCLUDES), -I$d) 
 SYMBOLS=
 DSYMBOLS=$(foreach sym, $(SYMBOLS), -D$(sym))
 LDFLAGS=-lsqlite3

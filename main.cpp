@@ -7,6 +7,7 @@
 //============================================================================
 
 #include "db_manager.h"
+#include "uselessdb_daemon.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,21 +15,55 @@
 
 int main(void) {
 	int ret=0;
+
+	UselessDBDaemon daemon;
+	ret=daemon.Init();
+	if(ret==0){
+		daemon.Run();
+	}
+	else{
+		printf("daemon init error\n");
+	}
+	/*
 	DB_Manager db_manager;
 	std::string key,value;
 
-	/*
 	key.assign("1 1");
-	value.assign("updated");
+	value.assign("test1");
 	ret=db_manager.Set(key,value);
 	printf("adding key=%s value=%s ret=%d\n",key.data(),value.data(),ret);
-	key.assign("2 2");
-	value.assign("updated2");
-	ret=db_manager.Set(key,value);
-	printf("adding key=%s value=%s ret=%d\n",key.data(),value.data(),ret);
-	 */
-	db_manager.Flush();
 
+	key.assign("2 2");
+	value.assign("test2");
+	ret=db_manager.Set(key,value);
+	printf("adding key=%s value=%s ret=%d\n",key.data(),value.data(),ret);
+
+
+	key.assign("1 1");
+	ret=db_manager.Get(key,&value);
+	printf("Get key=%s value=%s ret=%d\n",key.data(),value.data(),ret);
+
+	key.assign("2 2");
+	ret=db_manager.Get(key,&value);
+	printf("Get key=%s value=%s ret=%d\n",key.data(),value.data(),ret);
+
+	key.assign("3 3");
+	ret=db_manager.Get(key,&value);
+	printf("Get key=%s value=%s ret=%d\n",key.data(),value.data(),ret);
+
+
+
+	key.assign("2 2");
+	value.assign("Updated");
+	ret=db_manager.Set(key,value);
+	printf("adding key=%s value=%s ret=%d\n",key.data(),value.data(),ret);
+
+	key.assign("2 2");
+	ret=db_manager.Get(key,&value);
+	printf("Get key=%s value=%s ret=%d\n",key.data(),value.data(),ret);
+
+	//db_manager.Flush();
+*/
 	/*
 	sqlite3 *db;
 
