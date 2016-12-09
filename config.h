@@ -18,6 +18,6 @@
 #define MAX_VALUE_STR_LEN	200
 #define ROOT_DB_USER		"root"
 
-#define SESSION_TIMEOUT		3600
+#define SESSION_TIMEOUT_S	3600
 
 #endif /* CONFIG_H_ */
