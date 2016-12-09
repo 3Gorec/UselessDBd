@@ -12,10 +12,12 @@
 #define TOSTR(X) TOSTR2(X)
 
 #define ULDBFILE_NAME		"db"
-#define ULTABLE_NAME		"useless_table"
+#define DATA_TABLE_NAME		"useless_data"
+#define USER_TABLE_NAME		"useless_users"
 #define MAX_KEY_STR_LEN		200
 #define MAX_VALUE_STR_LEN	200
+#define ROOT_DB_USER		"root"
 
-
+#define SESSION_TIMEOUT		3600
 
 #endif /* CONFIG_H_ */

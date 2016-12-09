@@ -9,6 +9,7 @@
 #define DB_MANAGER_H_
 
 #include "config.h"
+#include "session_manager.h"
 #include <string>
 #include <sqlite3.h>
 
@@ -16,15 +17,23 @@ class DB_Manager{
 public:
 	DB_Manager();
 	~DB_Manager();
-	int Set(std::string &key, std::string &value);
-	int Get(std::string &key, std::string *value);
-	int Remove(std::string key);
+	int Init();
+	int Connect(std::string &user);
+	int Set(std::string &user, std::string &key, std::string &value);
+	int Get(std::string &user, std::string &key, std::string *value);
+	int Remove(std::string &user, std::string key);
 	int Flush();
+	int UserAdd(std::string &user, std::string &new_user);
+	int UserRemove(std::string &user, std::string &user_to_delete);
 private:
 	sqlite3 *db;
+	SessionManager session_mngr;
+	bool UserExist(std::string &user);
 	int RewriteEntry(std::string &key, std::string &value);
-	int InitDB();
-	void OutputError();
+	int InsertEntryUserTable(std::string &user_name);
+	int InitDataTable();
+	int InitUserTable();
+	void OutputSqliteError();
 };
 
 #endif /* DB_MANAGER_H_ */
