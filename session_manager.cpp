@@ -6,11 +6,11 @@
  */
 
 
-#include "db_manager.h"
+#include "session_manager.h"
+#include "config.h"
 
+SessionManager::SessionManager(){
 
-SessionManager::SessionManager(DB_Manager *db_manager){
-	this->db_manager=db_manager;
 }
 
 SessionManager::~SessionManager(){
@@ -52,8 +52,11 @@ bool SessionManager::IsSessionActive(std::string &user){
 	int ret=false;
 	for(auto &it: active_sessions){
 		if(it.user==user){
-			if(time(0)-it.timestamp<=SESSION_TIMEOUT){
+			if(time(0)-it.timestamp<=SESSION_TIMEOUT_S){
 				ret=true;
+			}
+			else{
+				EndSession(user);
 			}
 			break;
 		}
@@ -70,5 +73,5 @@ int SessionManager::UpdateSession(std::string &user){
 			break;
 		}
 	}
-	ret=0;
+	return ret;
 }

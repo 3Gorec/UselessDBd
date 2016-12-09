@@ -8,7 +8,7 @@
 #include "db_manager.h"
 #include <stdio.h>	//todo remove
 
-DB_Manager::DB_Manager():session_mngr(this){
+DB_Manager::DB_Manager(){
 
 }
 

@@ -8,17 +8,14 @@
 #ifndef SESSION_MANAGER_H_
 #define SESSION_MANAGER_H_
 
-#include "db_manager.h"
 #include <time.h>
 #include <string>
 #include <list>
 #include <tuple>
 
-class DB_Manager;
-
 class SessionManager{
 public:
-	SessionManager(DB_Manager *db_manager);
+	SessionManager();
 	~SessionManager();
 	int StartSession(std::string &user);
 	int EndSession(std::string &user);
@@ -33,7 +30,6 @@ private:
 		}
 	};
 	std::list<tSession> active_sessions;
-	DB_Manager *db_manager;
 };
 
 
