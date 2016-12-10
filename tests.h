@@ -10,7 +10,7 @@
 
 bool TestSessionManager();
 bool TestDBManager();
-
+bool TestProtocolParser();
 
 
 #endif /* TESTS_H_ */

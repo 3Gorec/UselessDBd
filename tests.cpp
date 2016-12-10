@@ -9,6 +9,7 @@
 #include "tests.h"
 #include "db_manager.h"
 #include "uselessdb_daemon.h"
+#include "useless_protocol_parser.h"
 #include "tests.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -143,75 +144,6 @@ bool TestDBManager(){
 		printf("DB_manager init error\n");
 	}
 	return test_result;
-
-	/*
-
-		std::string key,value;
-
-		key.assign("1 1");
-		value.assign("test1");
-		ret=db_manager.Set(key,value);
-		printf("adding key=%s value=%s ret=%d\n",key.data(),value.data(),ret);
-
-		key.assign("2 2");
-		value.assign("test2");
-		ret=db_manager.Set(key,value);
-		printf("adding key=%s value=%s ret=%d\n",key.data(),value.data(),ret);
-
-
-		key.assign("1 1");
-		ret=db_manager.Get(key,&value);
-		printf("Get key=%s value=%s ret=%d\n",key.data(),value.data(),ret);
-
-		key.assign("2 2");
-		ret=db_manager.Get(key,&value);
-		printf("Get key=%s value=%s ret=%d\n",key.data(),value.data(),ret);
-
-		key.assign("3 3");
-		ret=db_manager.Get(key,&value);
-		printf("Get key=%s value=%s ret=%d\n",key.data(),value.data(),ret);
-
-
-
-		key.assign("2 2");
-		value.assign("Updated");
-		ret=db_manager.Set(key,value);
-		printf("adding key=%s value=%s ret=%d\n",key.data(),value.data(),ret);
-
-		key.assign("2 2");
-		ret=db_manager.Get(key,&value);
-		printf("Get key=%s value=%s ret=%d\n",key.data(),value.data(),ret);
-
-		//db_manager.Flush();
-	*/
-		/*
-		sqlite3 *db;
-
-		char *error_msg;
-		ret=sqlite3_open(ULDBFILE_NAME,&db);
-		if(ret){
-			printf("Opening db error: %s\n",sqlite3_errmsg(db));
-			sqlite3_close(db);
-			return EXIT_FAILURE;
-		}
-		else{
-			printf("Opening successfull\n");
-		}
-		ret=sqlite3_exec(db,"create table if not exists "ULTABLE_NAME" ( " \
-				"key varchar("TOSTR(MAX_KEY_STR_LEN)") NOT NULL," \
-				"value varchar("TOSTR(MAX_VALUE_STR_LEN)") NOT NULL," \
-				"PRIMARY KEY (key)" \
-				");",NULL,NULL,&error_msg);
-		if(ret){
-			printf("Create table "ULTABLE_NAME" error:\n %s\n",error_msg);
-			sqlite3_free(error_msg);
-			sqlite3_close(db);
-			return EXIT_FAILURE;
-		}
-		else{
-			printf("Table created\n");
-		}
-	*/
 }
 
 static bool TestDBManagerUsers(DB_Manager &db_manager){
@@ -425,3 +357,54 @@ exit:
 	}
 	return ret;
 }
+
+bool TestProtocolParser(){
+	bool ret=false;
+	int code=0;
+	uint32_t pid=0x00ffffff;
+	std::string root(ROOT_DB_USER);
+	std::string key1("key 1 1");
+	std::string val1("value 1 1");
+	std::string result;
+	std::list<std::string> list;
+	std::list<std::string> list_readback;
+	list.push_back(root);
+	list.push_back(key1);
+	list.push_back(val1);
+	std::list<std::string>::iterator it1;
+	std::list<std::string>::iterator it2;
+
+	if(UselessProtocolParser::PrepareMsgData(list,result)!=0){
+		code=1;
+		goto exit;
+	}
+	if(UselessProtocolParser::InjectPid(result,pid)!=0){
+		code=2;
+		goto exit;
+	}
+	if(UselessProtocolParser::WithdrawPid(result)!=pid){
+		code=3;
+		goto exit;
+	}
+	if(UselessProtocolParser::ParseMsg(result,list_readback)!=0){
+		code=4;
+		goto exit;
+	}
+	for(it1=list.begin(), it2=list_readback.begin();it1!=list.end();it1++, it2++){
+		if(*it1!=*it2){
+			code=5;
+			goto exit;
+		}
+	}
+
+	ret=true;
+exit:
+	if(!ret){
+		printf("Protocol parser test error %d\n",code);
+	}
+	else{
+		printf("Protocol parser test success\n");
+	}
+	return ret;
+}
+
