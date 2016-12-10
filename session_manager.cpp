@@ -75,3 +75,11 @@ int SessionManager::UpdateSession(std::string &user){
 	}
 	return ret;
 }
+
+int SessionManager::CheckNUpdateSession(std::string &user){
+	int ret=1;
+	if(IsSessionActive(user)){
+		ret=UpdateSession(user);
+	}
+	return ret;
+}

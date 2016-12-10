@@ -21,6 +21,7 @@ public:
 	int EndSession(std::string &user);
 	bool IsSessionActive(std::string &user);
 	int UpdateSession(std::string &user);
+	int CheckNUpdateSession(std::string &user);
 private:
 	struct tSession{
 		std::string user;

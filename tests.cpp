@@ -22,6 +22,7 @@ bool TestSessionManager(){
 	int code=0;
 	SessionManager s_manager;
 
+	//create|active tests
 	if(s_manager.IsSessionActive(root)){
 		code=1;
 		goto exit;
@@ -63,34 +64,56 @@ bool TestSessionManager(){
 		code=10;
 		goto exit;
 	}
+
+	//Update tests
 	if(s_manager.StartSession(root)!=0){
 		code=11;
 		goto exit;
 	}
 	if(!s_manager.IsSessionActive(root)){
-		code=13;
+		code=12;
 		goto exit;
 	}
 	sleep(SESSION_TIMEOUT_S/2);
 	if(s_manager.UpdateSession(root)!=0){
-		code=14;
+		code=13;
 		goto exit;
 	}
 	sleep(SESSION_TIMEOUT_S/2+1);
 	if(!s_manager.IsSessionActive(root)){
-		code=15;
+		code=14;
 		goto exit;
 	}
 	if(s_manager.EndSession(root)!=0){
-		code=16;
+		code=15;
 		goto exit;
 	}
 	if(s_manager.UpdateSession(root)!=1){
-		code=17;
+		code=16;
 		goto exit;
 	}
 	if(s_manager.IsSessionActive(root)){
+		code=17;
+		goto exit;
+	}
+
+	//CheckNUpdate test
+	if(s_manager.StartSession(root)!=0){
 		code=18;
+		goto exit;
+	}
+	sleep(SESSION_TIMEOUT_S/2);
+	if(s_manager.CheckNUpdateSession(root)!=0){
+		code=19;
+		goto exit;
+	}
+	sleep(SESSION_TIMEOUT_S/2+1);
+	if(!s_manager.IsSessionActive(root)){
+		code=20;
+		goto exit;
+	}
+	if(s_manager.EndSession(root)!=0){
+		code=21;
 		goto exit;
 	}
 	ret=true;
