@@ -14,6 +14,7 @@
 #define ULDBFILE_NAME		"db"
 #define DATA_TABLE_NAME		"useless_data"
 #define USER_TABLE_NAME		"useless_users"
+#define MAX_USER_STR_LEN	200
 #define MAX_KEY_STR_LEN		200
 #define MAX_VALUE_STR_LEN	200
 #define ROOT_DB_USER		"root"

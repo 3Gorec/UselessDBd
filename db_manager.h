@@ -19,10 +19,11 @@ public:
 	~DB_Manager();
 	int Init();
 	int Connect(std::string &user);
+	int Disconnect(std::string &user);
 	int Set(std::string &user, std::string &key, std::string &value);
 	int Get(std::string &user, std::string &key, std::string *value);
 	int Remove(std::string &user, std::string key);
-	int Flush();
+	int FlushDataTable();
 	int UserAdd(std::string &user, std::string &new_user);
 	int UserRemove(std::string &user, std::string &user_to_delete);
 private:
