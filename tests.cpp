@@ -317,8 +317,103 @@ exit:
 static bool TestDBManagerData(DB_Manager &db_manager){
 	bool ret=false;
 	int code=0;
+	std::string root(ROOT_DB_USER);
+	std::string key1("key 1 1");
+	std::string key2("key 2 2");
+	std::string val1("value 1 1");
+	std::string val2("value 2 2");
+	std::string val2upd("updated 2 2");
+	std::string result;
 
+	//empty bd unconnectd
+	if(db_manager.Get(root,key1,&result)==0){
+		code=1;
+		goto exit;
+	}
+	if(db_manager.Set(root,key1,val1)==0){
+		code=2;
+		goto exit;
+	}
 
+	//connected filling
+	if(db_manager.Connect(root)!=0){
+		code=3;
+		goto exit;
+	}
+	if(db_manager.Set(root,key1,val1)!=0){
+		code=4;
+		goto exit;
+	}
+	if(db_manager.Get(root,key1,&result)!=0 && result!=val1){
+		code=5;
+		goto exit;
+	}
+	if(db_manager.Disconnect(root)!=0){
+		code=6;
+		goto exit;
+	}
+
+	//filled unconnected
+	if(db_manager.Get(root,key1,&result)==0){
+		code=7;
+		goto exit;
+	}
+	if(db_manager.Set(root,key1,val1)==0){
+		code=8;
+		goto exit;
+	}
+
+	//removing
+	if(db_manager.Connect(root)!=0){
+		code=9;
+		goto exit;
+	}
+	if(db_manager.Get(root,key1,&result)!=0 && result!=val1){
+		code=10;
+		goto exit;
+	}
+	if(db_manager.Remove(root,key1)!=0){
+		code=11;
+		goto exit;
+	}
+	if(db_manager.Get(root,key1,&result)==0){
+		code=12;
+		goto exit;
+	}
+
+	//rewriting
+	if(db_manager.Get(root,key2,&result)==0){
+		code=13;
+		goto exit;
+	}
+	if(db_manager.Set(root,key2,val2)!=0){
+		code=14;
+		goto exit;
+	}
+	if(db_manager.Get(root,key2,&result)!=0 && result!=val2){
+		code=15;
+		goto exit;
+	}
+	if(db_manager.Set(root,key2,val2upd)!=0){
+		code=16;
+		goto exit;
+	}
+	if(db_manager.Get(root,key2,&result)!=0 && result!=val2upd){
+		code=17;
+		goto exit;
+	}
+	if(db_manager.Remove(root,key2)!=0){
+		code=18;
+		goto exit;
+	}
+	if(db_manager.Get(root,key2,&result)==0){
+		code=19;
+		goto exit;
+	}
+	if(db_manager.Disconnect(root)!=0){
+		code=20;
+		goto exit;
+	}
 
 	ret=true;
 exit:
