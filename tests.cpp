@@ -219,6 +219,7 @@ static bool TestDBManagerUsers(DB_Manager &db_manager){
 	int code=0;
 	std::string root(ROOT_DB_USER);
 	std::string test_usr("test_user");
+	std::string test_usr2("test_user2");
 
 	//Root unconnected tests
 	if(db_manager.UserAdd(root,test_usr)==0){
@@ -268,6 +269,40 @@ static bool TestDBManagerUsers(DB_Manager &db_manager){
 		goto exit;
 	}
 
+	//test user connected
+	if(db_manager.Connect(root)!=0){
+		code=12;
+		goto exit;
+	}
+	if(db_manager.UserAdd(root,test_usr)!=0){
+		code=13;
+		goto exit;
+	}
+	if(db_manager.Disconnect(root)!=0){
+		code=14;
+		goto exit;
+	}
+	if(db_manager.Connect(test_usr)!=0){
+		code=15;
+		goto exit;
+	}
+	if(db_manager.UserAdd(test_usr,test_usr2)!=0){
+		code=16;
+		goto exit;
+	}
+	if(db_manager.UserRemove(test_usr,test_usr2)!=0){
+		code=17;
+		goto exit;
+	}
+	if(db_manager.UserRemove(test_usr,test_usr)!=0){
+		code=18;
+		goto exit;
+	}
+	if(db_manager.Disconnect(test_usr)!=0){
+		code=19;
+		goto exit;
+	}
+
 	ret=true;
 exit:
 	if(!ret){
@@ -281,7 +316,8 @@ exit:
 
 static bool TestDBManagerData(DB_Manager &db_manager){
 	bool ret=false;
-	int code=-1;
+	int code=0;
+
 
 
 	ret=true;
