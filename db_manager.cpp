@@ -32,7 +32,7 @@ int DB_Manager::Init(){
 	if(ret==0){
 		ret=InitUserTable();
 		if(ret!=0){
-			printf("Data table init error\n");
+			printf("User table init error\n");
 		}
 	}
 	return ret;
@@ -49,7 +49,7 @@ int DB_Manager::Connect(std::string &user){
 }
 
 int DB_Manager::Disconnect(std::string &user){
-	int ret=0;
+	int ret=1;
 	if(session_mngr.IsSessionActive(user)){
 		ret=session_mngr.EndSession(user);
 	}
@@ -177,14 +177,17 @@ int DB_Manager::FlushDataTable(){
 }
 
 int DB_Manager::UserAdd(std::string &user, std::string &new_user){
-	int ret=0;
+	int ret=1;
 
 	assert(user.length()<MAX_USER_STR_LEN);
 
 	ret=session_mngr.CheckNUpdateSession(user);
 	if(ret==0){
-		if(!UserExist(user)){
+		if(!UserExist(new_user)){
 			ret=InsertEntryUserTable(new_user);
+		}
+		else{
+			ret=1;
 		}
 	}
 	return ret;
@@ -193,10 +196,14 @@ int DB_Manager::UserAdd(std::string &user, std::string &new_user){
 int DB_Manager::UserRemove(std::string &user, std::string &user_to_delete){
 	int ret=0;
 	sqlite3_stmt *stmt;
-	char * sql_query=(char *)("DELETE FROM "USER_TABLE_NAME" WHERE key=?1;");
+	char * sql_query=(char *)("DELETE FROM "USER_TABLE_NAME" WHERE user=?1;");
 
 	assert(user.length()<MAX_USER_STR_LEN);
 	ret=session_mngr.CheckNUpdateSession(user);
+	if(user_to_delete==std::string(ROOT_DB_USER)){	//You can't remove root
+		ret=-1;
+	}
+
 	if(ret==0){
 		if(UserExist(user_to_delete)){
 			ret=sqlite3_prepare_v2(db, sql_query, -1, &stmt, 0);
@@ -216,6 +223,9 @@ int DB_Manager::UserRemove(std::string &user, std::string &user_to_delete){
 				}
 				sqlite3_finalize(stmt);
 			}
+		}
+		else{
+			ret=1;
 		}
 	}
 	return ret;
@@ -249,9 +259,6 @@ bool DB_Manager::UserExist(std::string &user){
 			OutputSqliteError();
 		}
 		sqlite3_finalize(stmt);
-	}
-	if(ret!=0){
-		exist=false;
 	}
 	return exist;
 }
@@ -298,10 +305,13 @@ int DB_Manager::InitDataTable(){
 	}
 	if(ret==SQLITE_OK){
 		ret=sqlite3_step(stmt);
-			if(ret!=SQLITE_DONE){
-				OutputSqliteError();
-			}
-			sqlite3_finalize(stmt);
+		if(ret==SQLITE_DONE){
+			ret=0;
+		}
+		else{
+			OutputSqliteError();
+		}
+		sqlite3_finalize(stmt);
 	}
 	return ret;
 }
@@ -327,8 +337,9 @@ int DB_Manager::InitUserTable(){
 			sqlite3_finalize(stmt);
 	}
 	if(ret==SQLITE_DONE){
+		ret=0;
 		if(!UserExist(default_user)){
-			InsertEntryUserTable(default_user);
+			ret=InsertEntryUserTable(default_user);
 		}
 	}
 

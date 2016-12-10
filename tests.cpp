@@ -15,6 +15,8 @@
 #include <string.h>
 #include <unistd.h>
 
+static bool TestDBManagerUsers(DB_Manager &db_manager);
+static bool TestDBManagerData(DB_Manager &db_manager);
 
 bool TestSessionManager(){
 	std::string root(ROOT_DB_USER);
@@ -128,8 +130,22 @@ exit:
 }
 
 bool TestDBManager(){
+	bool test_result;
+	DB_Manager db_manager;
+	int ret=db_manager.Init();
+	if(ret==0){
+		test_result=TestDBManagerUsers(db_manager);
+		if(test_result){
+			test_result=TestDBManagerData(db_manager);
+		}
+	}
+	else{
+		printf("DB_manager init error\n");
+	}
+	return test_result;
+
 	/*
-		DB_Manager db_manager;
+
 		std::string key,value;
 
 		key.assign("1 1");
@@ -196,4 +212,85 @@ bool TestDBManager(){
 			printf("Table created\n");
 		}
 	*/
+}
+
+static bool TestDBManagerUsers(DB_Manager &db_manager){
+	bool ret=false;
+	int code=0;
+	std::string root(ROOT_DB_USER);
+	std::string test_usr("test_user");
+
+	//Root unconnected tests
+	if(db_manager.UserAdd(root,test_usr)==0){
+		code=1;
+		goto exit;
+	}
+	if(db_manager.UserRemove(root,test_usr)==0){
+		code=2;
+		goto exit;
+	}
+
+	//Root connected tests
+	if(db_manager.Connect(root)!=0){
+		code=3;
+		goto exit;
+	}
+	if(db_manager.Connect(root)==0){
+		code=4;
+		goto exit;
+	}
+	if(db_manager.UserAdd(root,test_usr)!=0){
+		code=5;
+		goto exit;
+	}
+	if(db_manager.UserAdd(root,test_usr)==0){
+		code=6;
+		goto exit;
+	}
+	if(db_manager.UserRemove(root,test_usr)!=0){
+		code=7;
+		goto exit;
+	}
+	if(db_manager.UserRemove(root,test_usr)==0){
+		code=8;
+		goto exit;
+	}
+	if(db_manager.UserRemove(root,root)==0){
+		code=9;
+		goto exit;
+	}
+	if(db_manager.Disconnect(root)!=0){
+		code=10;
+		goto exit;
+	}
+	if(db_manager.Disconnect(root)==0){
+		code=11;
+		goto exit;
+	}
+
+	ret=true;
+exit:
+	if(!ret){
+		printf("DB_Manager users test error %d\n",code);
+	}
+	else{
+		printf("DB_Manager users test success\n");
+	}
+	return ret;
+}
+
+static bool TestDBManagerData(DB_Manager &db_manager){
+	bool ret=false;
+	int code=-1;
+
+
+	ret=true;
+exit:
+	if(!ret){
+		printf("DB_Manager data test error %d\n",code);
+	}
+	else{
+		printf("DB_Manager data test success\n");
+	}
+	return ret;
 }
