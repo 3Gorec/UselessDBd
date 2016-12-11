@@ -18,7 +18,10 @@ UselessDBDaemon::~UselessDBDaemon(){
 
 int UselessDBDaemon::Init(){
 	int daemon_pid=0, ret=1;
-	daemon_pid=unl_communicator.Init(0);
+	ret=req_processor.Init();
+	if(ret==0){
+		daemon_pid=unl_communicator.Init(0);
+	}
 	if(daemon_pid!=0){
 		ret=NotifyKernelModule(daemon_pid);
 	}
