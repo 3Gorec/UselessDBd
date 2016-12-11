@@ -6,6 +6,8 @@
  */
 
 #include "uselessnl_core.h"
+#include <list>
+#include <string>
 
 class UselessNLReqProcessor{
 public:
@@ -13,6 +15,15 @@ public:
 	~UselessNLReqProcessor();
 	int ProcessRequest(UselessNLMsg &msg);
 private:
+	int Echo(std::list<std::string> parsed_data, uint32_t pid);
+	int Connect(std::list<std::string> parsed_data, uint32_t pid);
+	int Disconnect(std::list<std::string> parsed_data, uint32_t pid);
+	int Get(std::list<std::string> parsed_data, uint32_t pid);
+	int Set(std::list<std::string> parsed_data, uint32_t pid);
+	int Remove(std::list<std::string> parsed_data, uint32_t pid);
+	int UserAdd(std::list<std::string> parsed_data, uint32_t pid);
+	int UserRemove(std::list<std::string> parsed_data, uint32_t pid);
+	void SendProcessErrorToClient(uint32_t pid);
 	UselessNLCore *unl_communicator;
 };
 
