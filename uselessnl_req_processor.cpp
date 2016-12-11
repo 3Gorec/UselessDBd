@@ -104,5 +104,11 @@ int UselessNLReqProcessor::UserRemove(std::list<std::string> parsed_data, uint32
 }
 
 void UselessNLReqProcessor::SendProcessErrorToClient(uint32_t pid){
-
+	int ret=0;
+	std::string err_msg_buf;
+	ret=UselessProtocolParser::InjectPid(err_msg_buf,pid);
+	if(ret==0){
+		UselessNLMsg error_msg(MSGTYPE_RESP_ERROR,err_msg_buf);
+		unl_communicator->SendMsg(error_msg);
+	}
 }

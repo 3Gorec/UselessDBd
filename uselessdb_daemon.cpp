@@ -37,9 +37,6 @@ void UselessDBDaemon::Run(){
 			ret=unl_communicator.RecvMsg(msg);
 			if(ret!=-1){
 				ret=req_processor.ProcessRequest(msg);
-				if(ret!=0){
-					//todo send error_msg
-				}
 			}
 		}
 	}

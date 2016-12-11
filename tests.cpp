@@ -374,6 +374,7 @@ bool TestProtocolParser(){
 	std::list<std::string>::iterator it1;
 	std::list<std::string>::iterator it2;
 
+	result.clear();
 	if(UselessProtocolParser::PrepareMsgData(list,result)!=0){
 		code=1;
 		goto exit;
@@ -390,7 +391,7 @@ bool TestProtocolParser(){
 		code=4;
 		goto exit;
 	}
-	for(it1=list.begin(), it2=list_readback.begin();it1!=list.end();it1++, it2++){
+	for(it1=list.begin(), it2=list_readback.begin();it1!=list.end() && it2!=list_readback.end();it1++, it2++){
 		if(*it1!=*it2){
 			code=5;
 			goto exit;

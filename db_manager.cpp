@@ -73,7 +73,7 @@ int DB_Manager::Set(std::string &user, std::string &key, std::string &value){
 			return ret;
 		}
 		else if(ret==-1){	//Добавить новую
-			sql_query=(char *)"INSERT INTO "DATA_TABLE_NAME" VALUES (?1,?2);";
+			sql_query=(char *)"INSERT INTO " DATA_TABLE_NAME " VALUES (?1,?2);";
 		}
 		ret=sqlite3_prepare_v2(db, sql_query, -1, &stmt, 0);
 		if(ret==SQLITE_OK){
@@ -101,7 +101,7 @@ int DB_Manager::Set(std::string &user, std::string &key, std::string &value){
 int DB_Manager::Get(std::string &user, std::string &key, std::string *value){
 	int ret=0;
 	sqlite3_stmt *stmt;
-	char * sql_query=(char *)"SELECT * FROM "DATA_TABLE_NAME" WHERE key=?1;";
+	char * sql_query=(char *)"SELECT * FROM " DATA_TABLE_NAME " WHERE key=?1;";
 	assert(user.length()<MAX_USER_STR_LEN);
 	assert(key.length()<MAX_KEY_STR_LEN);
 
@@ -138,7 +138,7 @@ int DB_Manager::Get(std::string &user, std::string &key, std::string *value){
 int DB_Manager::Remove(std::string &user, std::string key){
 	int ret=0;
 	sqlite3_stmt *stmt;
-	char * sql_query=(char *)("DELETE FROM "DATA_TABLE_NAME" WHERE key=?1;");
+	char * sql_query=(char *)("DELETE FROM " DATA_TABLE_NAME " WHERE key=?1;");
 
 	assert(user.length()<MAX_USER_STR_LEN);
 	assert(key.length()<MAX_KEY_STR_LEN);
@@ -169,7 +169,7 @@ int DB_Manager::Remove(std::string &user, std::string key){
 int DB_Manager::FlushDataTable(){
 	int ret=0;
 	char *error_msg;
-	ret=sqlite3_exec(db,"DELETE FROM "DATA_TABLE_NAME";",NULL,NULL,&error_msg);
+	ret=sqlite3_exec(db,"DELETE FROM " DATA_TABLE_NAME ";",NULL,NULL,&error_msg);
 	if(ret){
 		OutputSqliteError();
 	}
@@ -196,7 +196,7 @@ int DB_Manager::UserAdd(std::string &user, std::string &new_user){
 int DB_Manager::UserRemove(std::string &user, std::string &user_to_delete){
 	int ret=0;
 	sqlite3_stmt *stmt;
-	char * sql_query=(char *)("DELETE FROM "USER_TABLE_NAME" WHERE user=?1;");
+	char * sql_query=(char *)("DELETE FROM " USER_TABLE_NAME " WHERE user=?1;");
 
 	assert(user.length()<MAX_USER_STR_LEN);
 	ret=session_mngr.CheckNUpdateSession(user);
@@ -238,7 +238,7 @@ bool DB_Manager::UserExist(std::string &user){
 
 	assert(user.length()<MAX_USER_STR_LEN);
 
-	char * sql_query=(char *)"SELECT * FROM "USER_TABLE_NAME" WHERE user=?1;";
+	char * sql_query=(char *)"SELECT * FROM " USER_TABLE_NAME " WHERE user=?1;";
 	ret=sqlite3_prepare_v2(db, sql_query, -1, &stmt, 0);
 	if(ret==SQLITE_OK){
 		sqlite3_bind_text(stmt,1,user.data(),-1,0);
@@ -267,7 +267,7 @@ int DB_Manager::RewriteEntry(std::string &key, std::string &value){
 	int ret=0;
 	char *sql_query;
 	sqlite3_stmt *stmt;
-	sql_query=(char *)"UPDATE "DATA_TABLE_NAME" SET value=?1 WHERE key=?2;";
+	sql_query=(char *)"UPDATE " DATA_TABLE_NAME " SET value=?1 WHERE key=?2;";
 	ret=sqlite3_prepare_v2(db, sql_query, -1, &stmt, 0);
 	if(ret==SQLITE_OK){
 		sqlite3_bind_text(stmt,1,value.data(),-1,0);
@@ -293,9 +293,9 @@ int DB_Manager::RewriteEntry(std::string &key, std::string &value){
 int DB_Manager::InitDataTable(){
 	int ret=0;
 	sqlite3_stmt *stmt;
-	const char *sql_query="create table if not exists "DATA_TABLE_NAME" (" \
-						"key varchar("TOSTR(MAX_KEY_STR_LEN)") NOT NULL," \
-						"value varchar("TOSTR(MAX_VALUE_STR_LEN)") NOT NULL," \
+	const char *sql_query="create table if not exists " DATA_TABLE_NAME " (" \
+						"key varchar(" TOSTR(MAX_KEY_STR_LEN) ") NOT NULL," \
+						"value varchar(" TOSTR(MAX_VALUE_STR_LEN) ") NOT NULL," \
 						"PRIMARY KEY (key)" \
 						");";
 
@@ -320,8 +320,8 @@ int DB_Manager::InitUserTable(){
 	int ret=0;
 	std::string default_user(ROOT_DB_USER);
 	sqlite3_stmt *stmt;
-	const char *sql_query="create table if not exists "USER_TABLE_NAME" (" \
-						"user varchar("TOSTR(MAX_KEY_STR_LEN)") NOT NULL," \
+	const char *sql_query="create table if not exists " USER_TABLE_NAME " (" \
+						"user varchar(" TOSTR(MAX_KEY_STR_LEN) ") NOT NULL," \
 						"PRIMARY KEY (user)" \
 						");";
 
@@ -351,7 +351,7 @@ int DB_Manager::InsertEntryUserTable(std::string &user_name){
 	char *sql_query;
 	sqlite3_stmt *stmt;
 
-	sql_query=(char *)"INSERT INTO "USER_TABLE_NAME" VALUES (?1);";
+	sql_query=(char *)"INSERT INTO " USER_TABLE_NAME " VALUES (?1);";
 	ret=sqlite3_prepare_v2(db, sql_query, -1, &stmt, 0);
 	if(ret==SQLITE_OK){
 			sqlite3_bind_text(stmt,1,user_name.data(),-1,0);
