@@ -143,7 +143,7 @@ int UselessNLReqProcessor::Set(std::list<std::string> parsed_data, uint32_t pid)
 		std::string u_name=*it;
 		std::string key=*(++it);
 		std::string value=*(++it);
-		if(u_name.length()>0 && key.length()>0 && value.length()>0){
+		if(u_name.length()>0 && key.length()>0){
 			ret=db_manager.Set(u_name,key,value);
 			if(ret==0){
 				SendReportToClient(MSGTYPE_RESP_SET,pid);
