@@ -116,13 +116,13 @@ int UselessNLReqProcessor::Get(std::list<std::string> parsed_data, uint32_t pid)
 	if(parsed_data.size()==2){
 		auto it=parsed_data.begin();
 		std::string u_name=*it;
-		std::string key=*(it++);
+		std::string key=*(++it);
 		std::string value;
 		if(u_name.length()>0 && key.length()>0){
 			ret=db_manager.Get(u_name,key,&value);
 			if(ret==0){
 				std::string msg_buf;
-				ret=UselessProtocolParser::ParseStr(value,msg_buf);
+				ret=UselessProtocolParser::PrepareStr(value,msg_buf);
 				if(ret==0){
 					ret=UselessProtocolParser::InjectPid(msg_buf,pid);
 				}
@@ -141,8 +141,8 @@ int UselessNLReqProcessor::Set(std::list<std::string> parsed_data, uint32_t pid)
 	if(parsed_data.size()==3){
 		auto it=parsed_data.begin();
 		std::string u_name=*it;
-		std::string key=*(it++);
-		std::string value=*(it++);
+		std::string key=*(++it);
+		std::string value=*(++it);
 		if(u_name.length()>0 && key.length()>0 && value.length()>0){
 			ret=db_manager.Set(u_name,key,value);
 			if(ret==0){
@@ -158,7 +158,7 @@ int UselessNLReqProcessor::Remove(std::list<std::string> parsed_data, uint32_t p
 	if(parsed_data.size()==2){
 		auto it=parsed_data.begin();
 		std::string u_name=*it;
-		std::string key=*(it++);
+		std::string key=*(++it);
 		if(u_name.length()>0 && key.length()>0){
 			ret=db_manager.Remove(u_name,key);
 			if(ret==0){
@@ -174,7 +174,7 @@ int UselessNLReqProcessor::UserAdd(std::list<std::string> parsed_data, uint32_t 
 	if(parsed_data.size()==2){
 		auto it=parsed_data.begin();
 		std::string u_name=*it;
-		std::string new_user=*(it++);
+		std::string new_user=*(++it);
 		if(u_name.length()>0 && new_user.length()>0){
 			ret=db_manager.UserAdd(u_name,new_user);
 			if(ret==0){
@@ -190,7 +190,7 @@ int UselessNLReqProcessor::UserRemove(std::list<std::string> parsed_data, uint32
 	if(parsed_data.size()==2){
 		auto it=parsed_data.begin();
 		std::string u_name=*it;
-		std::string user_to_del=*(it++);
+		std::string user_to_del=*(++it);
 		if(u_name.length()>0 && user_to_del.length()>0){
 			ret=db_manager.UserRemove(u_name,user_to_del);
 			if(ret==0){
