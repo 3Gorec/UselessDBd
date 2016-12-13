@@ -10,6 +10,7 @@ SYMBOLS=
 DSYMBOLS=$(foreach sym, $(SYMBOLS), -D$(sym))
 LDFLAGS=-lsqlite3
 TARGET=uselessdbd
+INSTALL_DIR=/usr/sbin
 vpath %.cpp $(DIRS)
 
 all: debug
@@ -31,3 +32,11 @@ prepare:
 
 clean:
 	rm -Rf $(BUILD_DIR)
+
+install:
+	install $(BUILD_DIR)/$(TARGET) $(INSTALL_DIR)
+	install ./uselessdbd-init /etc/init.d/uselessdbd
+
+uninstall:
+	rm -rf $(INSTALL_DIR)/$(TARGET)
+	rm -rf /etc/init.d/uselessdbd

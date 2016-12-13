@@ -11,7 +11,7 @@
 #define TOSTR2(X) #X
 #define TOSTR(X) TOSTR2(X)
 
-#define ULDBFILE_NAME		"db"
+#define ULDBFILE_NAME		"/tmp/db"
 #define DATA_TABLE_NAME		"useless_data"
 #define USER_TABLE_NAME		"useless_users"
 #define MAX_USER_STR_LEN	200
